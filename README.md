@@ -1,3 +1,11 @@
+# lordofduct Fork Notes
+
+This was forked from WestHillApps (see below).
+
+Reorganized the project to work with Unity 2022.3 and newer and to be installable as a package.
+Use url:
+https://github.com/lordofduct/Custom-Primitive-Colliders.git?path=Assets/Custom-Primitive-Colliders
+
 # Custom-Primitive-Colliders
 
 [![GitHub License](https://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/mit-license.php)
