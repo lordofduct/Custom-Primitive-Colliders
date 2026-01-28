@@ -1,0 +1,17 @@
+{
+  "name": "CustomPrimitiveColliders",
+  "version": "1.0.0",
+  "displayName": "CustomPrimitiveColliders",
+  "description": "A selection of automatically generated mesh colliders that behave like primitive shapes. (forked from original author WestHillApps).",
+  "unity": "2022.3",
+  "unityRelease": "62f2",
+  "documentationUrl": "https://github.com/lordofduct/Custom-Primitive-Colliders",
+  "changelogUrl": "https://github.com/lordofduct/Custom-Primitive-Colliders",
+  "licensesUrl": "https://github.com/lordofduct/Custom-Primitive-Colliders/blob/master/LICENSE",
+  "dependencies": {},
+  "author": {
+    "name": "WestHillApps (Horonari Nishioka)",
+    "email": "nishioka-h@westhillapps.com",
+    "url": "https://github.com/westhillapps"
+  }
+}
