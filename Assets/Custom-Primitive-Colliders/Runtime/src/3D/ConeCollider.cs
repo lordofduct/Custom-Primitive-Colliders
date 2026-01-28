@@ -9,92 +9,114 @@ using UnityEngine;
 
 namespace CustomPrimitiveColliders
 {
+
     [AddComponentMenu("CustomPrimitiveColliders/3D/Cone Collider"), RequireComponent(typeof(MeshCollider))]
-    public class ConeCollider : BaseCustomCollider
+    public sealed class ConeCollider : Base3DCustomCollider
     {
+
+        const float MIN_RAD = 0.01f;
+        const float MIN_LEN = 0.01f;
+        const float MIN_ANGLE = 0.01f;
+        const float MAX_ANGLE = 179f;
+        const int MIN_VERTICES = 4;
+
+        #region Fields
+
         [SerializeField]
+        private bool m_useOpenAngle = true;
+        [SerializeField, Range(MIN_ANGLE, MAX_ANGLE)]
+        private float m_openAngle = 45;
+        [SerializeField, Min(MIN_RAD)]
         private float m_radius = 0.5f;
-        [SerializeField]
+        [SerializeField, Min(MIN_LEN)]
         private float m_length = 1f;
-        [SerializeField]
-        private bool m_useOpenAngle = false;
-        [SerializeField, Range(1, 179)]
-        private int m_openAngle = 45;
-        [SerializeField]
+        [SerializeField, Min(MIN_VERTICES)]
         private int m_numVertices = 32;
+
+        #endregion
+
+        #region CONSTRUCTOR
 
         private void Awake()
         {
-            ReCreate(m_radius, m_length, m_useOpenAngle, m_openAngle, m_numVertices);
+            this.Recreate();
         }
 
 #if UNITY_EDITOR
 
         private void Reset()
         {
-            ReCreate(m_radius, m_length, m_useOpenAngle, m_openAngle, m_numVertices);
+            this.Recreate();
         }
 
         private void OnValidate()
         {
-            ReCreate(m_radius, m_length, m_useOpenAngle, m_openAngle, m_numVertices);
+            this.Recreate();
         }
 
 #endif
 
-        public void ReCreate(float radius, float length, bool useOpenAngle = false, int openAngle = 45, int numVertices = 32)
+        #endregion
+
+        #region Properties
+
+        public bool UseOpenAngle => m_useOpenAngle;
+        public float Radius => m_radius;
+        public float Length => m_length;
+        public float OpenAngle => m_openAngle;
+        public int NumVertices => m_numVertices;
+
+        #endregion
+
+        #region Methods
+
+        public override void Recreate()
         {
-            Mesh mesh = CreateMesh(radius, length, useOpenAngle, openAngle, numVertices);
-
-            if (meshCollider.sharedMesh != null)
+            if (m_useOpenAngle)
             {
-                meshCollider.sharedMesh.Clear();
-                if (Application.isPlaying)
-                {
-                    Destroy(meshCollider.sharedMesh);
-                }
-                else
-                {
-                    DestroyImmediate(meshCollider.sharedMesh);
-                }
-
+                this.ConfigureOpenAngle(m_openAngle, m_length, m_numVertices);
             }
+            else
+            {
+                this.ConfigureRadius(m_radius, m_length, m_numVertices);
+            }
+        }
 
+        public void ConfigureRadius(float radius, float length, int numVertices = 32)
+        {
+            m_radius = Mathf.Max(radius, 0.01f);
+            m_length = Mathf.Max(length, 0.01f);
+            m_useOpenAngle = false;
+            m_openAngle = 2f * Mathf.Atan(radius / length) * Mathf.Rad2Deg;
+            m_numVertices = Mathf.Max(numVertices, 4);
+
+            Mesh mesh;
+            MeshCollider meshCollider;
+            this.GetMeshCollider(out meshCollider, out mesh);
+            CreateMesh(mesh, m_radius, m_length, m_numVertices);
             meshCollider.sharedMesh = mesh;
         }
 
-        private Mesh CreateMesh(float radius, float length, bool useOpenAngle, int openAngle, int numVertices)
+        public void ConfigureOpenAngle(float angle, float length, int numVertices = 32)
         {
-            if (radius <= 0f)
-            {
-                radius = 0.01f;
-            }
-
-            if (length <= 0f)
-            {
-                length = 0.01f;
-            }
-
-            openAngle = Mathf.Clamp(openAngle, 1, 179);
-
-            if (useOpenAngle)
-            {
-                radius = length * Mathf.Tan(openAngle * Mathf.Deg2Rad / 2f);
-            }
-
-            if (numVertices < 4)
-            {
-                numVertices = 4;
-            }
+            angle = Mathf.Clamp(angle, 0.01f, 179f);
+            float radius = length * Mathf.Tan(angle * Mathf.Deg2Rad / 2f);
 
             m_radius = radius;
             m_length = length;
-            m_useOpenAngle = useOpenAngle;
-            m_openAngle = openAngle;
-            m_numVertices = numVertices;
+            m_useOpenAngle = true;
+            m_openAngle = angle;
+            m_numVertices = Mathf.Max(numVertices, 4);
 
-            Mesh mesh = new Mesh();
+            Mesh mesh;
+            MeshCollider meshCollider;
+            this.GetMeshCollider(out meshCollider, out mesh);
+            CreateMesh(mesh, m_radius, m_length, m_numVertices);
+            meshCollider.sharedMesh = mesh;
+        }
 
+        private static void CreateMesh(Mesh mesh, float radius, float length, int numVertices)
+        {
 #if UNITY_EDITOR
             StringBuilder sbName = new StringBuilder("Cone");
             sbName.Append(numVertices);
@@ -150,8 +172,10 @@ namespace CustomPrimitiveColliders
             mesh.normals = normals;
             mesh.uv = uvs;
             mesh.triangles = triangles;
-
-            return mesh;
         }
+
+        #endregion
+
     }
+
 }

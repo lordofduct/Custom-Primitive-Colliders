@@ -9,8 +9,16 @@ using UnityEngine;
 namespace CustomPrimitiveColliders
 {
     [AddComponentMenu("CustomPrimitiveColliders/2D/Fan Collider 2D"), RequireComponent(typeof(PolygonCollider2D))]
-    public class FanCollider2D : BaseCustomCollider
+    public sealed class FanCollider2D : Base2DCustomCollider
     {
+
+        const float MIN_RAD = 0.01f;
+        const int MIN_ANGLE = 1;
+        const int MAX_ANGLE = 360;
+        const int MIN_VERTICES = 4;
+
+        #region Fields
+
         [SerializeField]
         private float m_radius = 1f;
         [SerializeField, Range(1, 360)]
@@ -18,54 +26,55 @@ namespace CustomPrimitiveColliders
         [SerializeField]
         private int m_numVertices = 32;
 
+        #endregion
+
+        #region CONSTRUCTOR
+
         private void Awake()
         {
-            ReCreate(m_radius, m_fanAngle, m_numVertices);
+            this.Recreate();
         }
 
 #if UNITY_EDITOR
 
         private void Reset()
         {
-            ReCreate(m_radius, m_fanAngle, m_numVertices);
+            this.Recreate();
         }
 
         private void OnValidate()
         {
-            ReCreate(m_radius, m_fanAngle, m_numVertices);
+            this.Recreate();
         }
 
 #endif
 
-        public void ReCreate(float radius, int fanAngle, int numVertices = 32)
+        #endregion
+
+        #region Methods
+
+        public override void Recreate()
         {
-            Vector2[] points = CreatePoints(radius, fanAngle, numVertices);
+            this.Configure(m_radius, m_fanAngle, m_numVertices);
+        }
+
+        public void Configure(float radius, int fanAngle, int numVertices = 32)
+        {
+            m_radius = Mathf.Max(radius, MIN_RAD);
+            m_fanAngle = Mathf.Clamp(fanAngle, MIN_ANGLE, MAX_ANGLE);
+            m_numVertices = Mathf.Max(numVertices, MIN_VERTICES);
+
+            Vector2[] points = CreatePoints(m_radius, m_fanAngle, m_numVertices);
 
             polygonCollider2d.points = null;
             polygonCollider2d.points = points;
         }
 
-        private Vector2[] CreatePoints(float radius, int fanAngle, int numVertices)
+        private static Vector2[] CreatePoints(float radius, int fanAngle, int numVertices)
         {
-            if (radius <= 0f)
-            {
-                radius = 0.01f;
-            }
-
-            fanAngle = Mathf.Clamp(fanAngle, 1, 360);
-
-            if (numVertices < 4)
-            {
-                numVertices = 4;
-            }
-
-            m_radius = radius;
-            m_fanAngle = fanAngle;
-            m_numVertices = numVertices;
-
             Vector2[] points = new Vector2[numVertices + (fanAngle == 360 ? 2 : 1)];
 
-            Quaternion quatStep = Quaternion.Euler(0f, 0f, fanAngle / (float)(fanAngle == 360 ? m_numVertices : (numVertices - 1)));
+            Quaternion quatStep = Quaternion.Euler(0f, 0f, fanAngle / (float)(fanAngle == 360 ? numVertices : (numVertices - 1)));
 
             points[0] = Vector2.zero;
 
@@ -105,5 +114,8 @@ namespace CustomPrimitiveColliders
 
             return points;
         }
+
+        #endregion
+
     }
 }

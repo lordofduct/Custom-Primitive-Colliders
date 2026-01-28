@@ -9,70 +9,95 @@ using UnityEngine;
 namespace CustomPrimitiveColliders
 {
     [AddComponentMenu("CustomPrimitiveColliders/2D/Triangle Collider 2D"), RequireComponent(typeof(PolygonCollider2D))]
-    public class TriangleCollider2D : BaseCustomCollider
+    public sealed class TriangleCollider2D : Base2DCustomCollider
     {
+
+        const float MIN_RAD = 0.01f;
+        const float MIN_LEN = 0.01f;
+        const float MIN_ANGLE = 0.01f;
+        const float MAX_ANGLE = 179f;
+
+        #region Fields
+
         [SerializeField]
+        private bool m_useOpenAngle = true;
+        [SerializeField, Range(MIN_ANGLE, MAX_ANGLE)]
+        private float m_openAngle = 45;
+        [SerializeField, Min(MIN_RAD)]
         private float m_radius = 0.5f;
-        [SerializeField]
+        [SerializeField, Min(MIN_LEN)]
         private float m_length = 1f;
-        [SerializeField]
-        private bool m_useOpenAngle = false;
-        [SerializeField, Range(1, 179)]
-        private int m_openAngle = 45;
+
+        #endregion
+
+        #region CONSTRUCTOR
 
         private void Awake()
         {
-            ReCreate(m_radius, m_length, m_useOpenAngle, m_openAngle);
+            this.Recreate();
         }
 
 #if UNITY_EDITOR
 
         private void Reset()
         {
-            ReCreate(m_radius, m_length, m_useOpenAngle, m_openAngle);
+            this.Recreate();
         }
 
         private void OnValidate()
         {
-            ReCreate(m_radius, m_length, m_useOpenAngle, m_openAngle);
+            this.Recreate();
         }
 
 #endif
 
-        public void ReCreate(float radius, float length, bool useOpenAngle = false, int openAngle = 45)
+        #endregion
+
+        #region Methods
+
+        public override void Recreate()
         {
-            Vector2[] points = CreatePoints(radius, length, useOpenAngle, openAngle);
+            if (m_useOpenAngle)
+            {
+                this.ConfigureOpenAngle(m_openAngle, m_length);
+            }
+            else
+            {
+                this.ConfigureRadius(m_radius, m_length);
+            }
+        }
+        public void ConfigureRadius(float radius, float length)
+        {
+            m_radius = Mathf.Max(radius, 0.01f);
+            m_length = Mathf.Max(length, 0.01f);
+            m_useOpenAngle = false;
+            m_openAngle = 2f * Mathf.Atan(radius / length) * Mathf.Rad2Deg;
+
+            Vector2[] points = CreatePoints(m_radius, m_length);
 
             polygonCollider2d.points = null;
             polygonCollider2d.points = points;
         }
 
-        private Vector2[] CreatePoints(float radius, float length, bool useOpenAngle, int openAngle)
+        public void ConfigureOpenAngle(float angle, float length)
         {
-            if (radius <= 0f)
-            {
-                radius = 0.01f;
-            }
-
-            if (length <= 0f)
-            {
-                length = 0.01f;
-            }
-
-            openAngle = Mathf.Clamp(openAngle, 1, 179);
-
-            if (useOpenAngle)
-            {
-                radius = length * Mathf.Tan(openAngle * Mathf.Deg2Rad / 2f);
-            }
+            angle = Mathf.Clamp(angle, 0.01f, 179f);
+            float radius = length * Mathf.Tan(angle * Mathf.Deg2Rad / 2f);
 
             m_radius = radius;
             m_length = length;
-            m_useOpenAngle = useOpenAngle;
-            m_openAngle = openAngle;
-            int numVertices = 4;
+            m_useOpenAngle = true;
+            m_openAngle = angle;
 
-            Vector2[] points = new Vector2[numVertices];
+            Vector2[] points = CreatePoints(radius, length);
+
+            polygonCollider2d.points = null;
+            polygonCollider2d.points = points;
+        }
+
+        private static Vector2[] CreatePoints(float radius, float length)
+        {
+            Vector2[] points = new Vector2[4];
 
             points[0] = Vector2.zero;
             points[1] = new Vector2(radius, length);
@@ -81,5 +106,8 @@ namespace CustomPrimitiveColliders
 
             return points;
         }
+
+        #endregion
+
     }
 }

@@ -9,9 +9,19 @@ using UnityEngine;
 
 namespace CustomPrimitiveColliders
 {
+
     [AddComponentMenu("CustomPrimitiveColliders/3D/Fan Cylinder Collider"), RequireComponent(typeof(MeshCollider))]
-    public class FanCylinderCollider : BaseCustomCollider
+    public sealed class FanCylinderCollider : Base3DCustomCollider
     {
+
+        const float MIN_RAD = 0.01f;
+        const float MIN_HEIGHT = 0.01f;
+        const int MIN_ANGLE = 1;
+        const int MAX_ANGLE = 360;
+        const int MIN_VERTICES = 4;
+
+        #region Fields
+
         [SerializeField]
         private float m_radius = 1f;
         [SerializeField]
@@ -21,72 +31,63 @@ namespace CustomPrimitiveColliders
         [SerializeField]
         private int m_numVertices = 32;
 
+        #endregion
+
+        #region CONSTRUCTOR
+
         private void Awake()
         {
-            ReCreate(m_radius, m_height, m_fanAngle, m_numVertices);
+            this.Recreate();
         }
 
 #if UNITY_EDITOR
 
         private void Reset()
         {
-            ReCreate(m_radius, m_height, m_fanAngle, m_numVertices);
+            this.Recreate();
         }
 
         private void OnValidate()
         {
-            ReCreate(m_radius, m_height, m_fanAngle, m_numVertices);
+            this.Recreate();
         }
 
 #endif
 
-        public void ReCreate(float radius, float height, int fanAngle, int numVertices = 32)
+        #endregion
+
+        #region Properties
+
+        public float Radius => m_radius;
+        public float Height => m_height;
+        public int FanAngle => m_fanAngle;
+        public int NumVertices => m_numVertices;
+
+        #endregion
+
+        #region Methods
+
+        public override void Recreate()
         {
-            Mesh mesh = CreateMesh(radius, height, fanAngle, numVertices);
+            Configure(m_radius, m_height, m_fanAngle, m_numVertices);
+        }
 
-            if (meshCollider.sharedMesh != null)
-            {
-                meshCollider.sharedMesh.Clear();
-                if (Application.isPlaying)
-                {
-                    Destroy(meshCollider.sharedMesh);
-                }
-                else
-                {
-                    DestroyImmediate(meshCollider.sharedMesh);
-                }
+        public void Configure(float radius, float height, int fanAngle, int numVertices = 32)
+        {
+            m_radius = Mathf.Max(radius, MIN_RAD);
+            m_height = Mathf.Max(height, MIN_HEIGHT);
+            m_fanAngle = Mathf.Clamp(fanAngle, MIN_ANGLE, MAX_ANGLE);
+            m_numVertices = Mathf.Max(numVertices, MIN_VERTICES);
 
-            }
-
+            Mesh mesh;
+            MeshCollider meshCollider;
+            this.GetMeshCollider(out meshCollider, out mesh);
+            CreateMesh(mesh, m_radius, m_height, m_fanAngle, m_numVertices);
             meshCollider.sharedMesh = mesh;
         }
 
-        private Mesh CreateMesh(float radius, float height, int fanAngle, int numVertices)
+        private static Mesh CreateMesh(Mesh mesh, float radius, float height, int fanAngle, int numVertices)
         {
-            if (radius <= 0f)
-            {
-                radius = 0.01f;
-            }
-
-            if (height <= 0f)
-            {
-                height = 0.01f;
-            }
-
-            fanAngle = Mathf.Clamp(fanAngle, 1, 360);
-
-            if (numVertices < 4)
-            {
-                numVertices = 4;
-            }
-
-            m_radius = radius;
-            m_height = height;
-            m_fanAngle = fanAngle;
-            m_numVertices = numVertices;
-
-            Mesh mesh = new Mesh();
-
 #if UNITY_EDITOR
             StringBuilder sbName = new StringBuilder("Cylinder");
             sbName.Append(numVertices);
@@ -107,7 +108,7 @@ namespace CustomPrimitiveColliders
             float halfHeight = height / 2f;
             Vector3 center = Vector3.zero;
 
-            Quaternion quatStep = Quaternion.Euler(0f, fanAngle / (float)(fanAngle == 360 ? m_numVertices : (numVertices - 1)), 0f);
+            Quaternion quatStep = Quaternion.Euler(0f, fanAngle / (float)(fanAngle == 360 ? numVertices : (numVertices - 1)), 0f);
 
             vertices[0] = new Vector3(0f, -halfHeight, 0f); ;
             vertices[vertices.Length - 1] = new Vector3(0f, halfHeight, 0f);
@@ -227,5 +228,9 @@ namespace CustomPrimitiveColliders
 
             return mesh;
         }
+
+        #endregion
+
     }
+
 }

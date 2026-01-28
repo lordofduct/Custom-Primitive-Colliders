@@ -67,8 +67,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c1fa6124dfaf9d428100c33963c836f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_useOpenAngle: 0
+  m_openAngle: 53.130104
   m_radius: 0.5
   m_length: 1
-  m_useOpenAngle: 0
-  m_openAngle: 45
   m_numVertices: 32
