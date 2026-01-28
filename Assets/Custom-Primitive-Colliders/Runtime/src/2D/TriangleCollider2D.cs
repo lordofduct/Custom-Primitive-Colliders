@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace CustomPrimitiveColliders
 {
+
     [AddComponentMenu("CustomPrimitiveColliders/2D/Triangle Collider 2D"), RequireComponent(typeof(PolygonCollider2D))]
     public sealed class TriangleCollider2D : Base2DCustomCollider
     {
@@ -110,4 +111,5 @@ namespace CustomPrimitiveColliders
         #endregion
 
     }
+
 }

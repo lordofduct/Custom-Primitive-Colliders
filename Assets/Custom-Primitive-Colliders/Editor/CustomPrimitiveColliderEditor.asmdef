@@ -1,0 +1,18 @@
+{
+    "name": "CustomPrimitiveColliderEditor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1c9653a9d69058043901b3c02ccd650a"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

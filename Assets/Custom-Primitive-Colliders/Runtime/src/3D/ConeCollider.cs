@@ -4,7 +4,6 @@ Copyright (c) 2018 WestHillApps (Hironari Nishioka)
 This software is released under the MIT License.
 http://opensource.org/licenses/mit-license.php
 */
-using System.Text;
 using UnityEngine;
 
 namespace CustomPrimitiveColliders
@@ -118,7 +117,7 @@ namespace CustomPrimitiveColliders
         private static void CreateMesh(Mesh mesh, float radius, float length, int numVertices)
         {
 #if UNITY_EDITOR
-            StringBuilder sbName = new StringBuilder("Cone");
+            var sbName = new System.Text.StringBuilder("Cone");
             sbName.Append(numVertices);
             sbName.Append("_radius_");
             sbName.Append(radius);

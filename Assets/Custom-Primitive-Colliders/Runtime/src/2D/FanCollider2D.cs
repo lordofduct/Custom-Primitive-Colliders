@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace CustomPrimitiveColliders
 {
+
     [AddComponentMenu("CustomPrimitiveColliders/2D/Fan Collider 2D"), RequireComponent(typeof(PolygonCollider2D))]
     public sealed class FanCollider2D : Base2DCustomCollider
     {
@@ -118,4 +119,5 @@ namespace CustomPrimitiveColliders
         #endregion
 
     }
+
 }
