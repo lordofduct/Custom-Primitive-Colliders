@@ -10,6 +10,13 @@
   "license": "MIT",
   "licensesUrl": "https://github.com/lordofduct/Custom-Primitive-Colliders/blob/master/LICENSE",
   "dependencies": {},
+  "samples": [
+    {
+      "displayName": "Example",
+      "description": "Contains an Example scene using all custom collider types",
+      "path": "Samples/Example"
+    }
+  ],
   "author": {
     "name": "WestHillApps (Horonari Nishioka)",
     "email": "nishioka-h@westhillapps.com",
