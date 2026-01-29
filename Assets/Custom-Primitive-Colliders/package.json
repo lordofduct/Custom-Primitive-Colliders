@@ -1,6 +1,6 @@
 {
   "name": "com.jlh.custom-primitive-colliders",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "displayName": "CustomPrimitiveColliders",
   "description": "A selection of automatically generated mesh colliders that behave like primitive shapes. (forked from original author WestHillApps).",
   "unity": "2022.3",
