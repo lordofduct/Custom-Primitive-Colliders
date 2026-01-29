@@ -117,60 +117,71 @@ namespace CustomPrimitiveColliders
         private static void CreateMesh(Mesh mesh, float radius, float length, int numVertices)
         {
 #if UNITY_EDITOR
-            var sbName = new System.Text.StringBuilder("Cone");
-            sbName.Append(numVertices);
-            sbName.Append("_radius_");
-            sbName.Append(radius);
-            sbName.Append("_length_");
-            sbName.Append(length);
-            mesh.name = sbName.ToString();
+            mesh.name = $"ConeCollider-Mesh-{numVertices}_radius_{radius}_length_{length}";
+#else
+            mesh.name = "ConeCollider-Mesh";
 #endif
 
-            Vector3[] vertices = new Vector3[numVertices * 3];
-            Vector3[] normals = new Vector3[numVertices * 3];
-            Vector2[] uvs = new Vector2[numVertices * 3];
-            int[] triangles = new int[numVertices * 6];
+            //Vector3[] vertices = new Vector3[numVertices * 3];
+            //Vector3[] normals = new Vector3[numVertices * 3];
+            //Vector2[] uvs = new Vector2[numVertices * 3];
+            //int[] triangles = new int[numVertices * 6];
 
-            float slope = Mathf.Atan(radius / length);
-            float slopeSin = Mathf.Sin(slope);
-            float slopeCos = Mathf.Cos(slope);
+            int vert_len = numVertices * 3;
+            int tri_len = numVertices * 6;
+            Vector3[] vertices;
+            Vector3[] normals;
+            Vector2[] uvs;
+            int[] triangles;
+            ArrayPool.GetReusableMeshArrays(vert_len, tri_len, out vertices, out normals, out uvs, out triangles);
 
-            int triangleCount = 0;
-
-            for (int i = 0; i < numVertices; i++)
+            try
             {
-                float angle = 2f * Mathf.PI * i / numVertices;
-                float angleSin = Mathf.Sin(angle);
-                float angleCos = Mathf.Cos(angle);
-                float angleHalf = 2f * Mathf.PI * (i + 0.5f) / numVertices;
-                float angleHalfSin = Mathf.Sin(angleHalf);
-                float angleHalfCos = Mathf.Cos(angleHalf);
+                float slope = Mathf.Atan(radius / length);
+                float slopeSin = Mathf.Sin(slope);
+                float slopeCos = Mathf.Cos(slope);
 
-                vertices[i] = Vector3.zero;
-                vertices[i + numVertices] = new Vector3(radius * angleCos, radius * angleSin, length);
-                vertices[i + numVertices * 2] = new Vector3(0, 0, length);
+                int triangleCount = 0;
 
-                normals[i] = new Vector3(angleHalfCos * slopeCos, angleHalfSin * slopeCos, -slopeSin);
-                normals[i + numVertices] = new Vector3(angleHalfCos * slopeCos, angleHalfSin * slopeCos, -slopeSin);
-                normals[i + numVertices * 2] = Vector3.forward;
+                for (int i = 0; i < numVertices; i++)
+                {
+                    float angle = 2f * Mathf.PI * i / numVertices;
+                    float angleSin = Mathf.Sin(angle);
+                    float angleCos = Mathf.Cos(angle);
+                    float angleHalf = 2f * Mathf.PI * (i + 0.5f) / numVertices;
+                    float angleHalfSin = Mathf.Sin(angleHalf);
+                    float angleHalfCos = Mathf.Cos(angleHalf);
 
-                uvs[i] = new Vector2(i / (float)numVertices, 1f);
-                uvs[i + numVertices] = new Vector2(i / (float)numVertices, 0f);
-                uvs[i + numVertices * 2] = new Vector2(0.5f, 0.5f);
+                    vertices[i] = Vector3.zero;
+                    vertices[i + numVertices] = new Vector3(radius * angleCos, radius * angleSin, length);
+                    vertices[i + numVertices * 2] = new Vector3(0, 0, length);
 
-                triangles[triangleCount++] = i + numVertices;
-                triangles[triangleCount++] = i;
-                triangles[triangleCount++] = i == numVertices - 1 ? numVertices : i + numVertices + 1;
+                    normals[i] = new Vector3(angleHalfCos * slopeCos, angleHalfSin * slopeCos, -slopeSin);
+                    normals[i + numVertices] = new Vector3(angleHalfCos * slopeCos, angleHalfSin * slopeCos, -slopeSin);
+                    normals[i + numVertices * 2] = Vector3.forward;
 
-                triangles[triangleCount++] = i + numVertices;
-                triangles[triangleCount++] = i == numVertices - 1 ? numVertices : i + numVertices + 1;
-                triangles[triangleCount++] = i + numVertices * 2;
+                    uvs[i] = new Vector2(i / (float)numVertices, 1f);
+                    uvs[i + numVertices] = new Vector2(i / (float)numVertices, 0f);
+                    uvs[i + numVertices * 2] = new Vector2(0.5f, 0.5f);
+
+                    triangles[triangleCount++] = i + numVertices;
+                    triangles[triangleCount++] = i;
+                    triangles[triangleCount++] = i == numVertices - 1 ? numVertices : i + numVertices + 1;
+
+                    triangles[triangleCount++] = i + numVertices;
+                    triangles[triangleCount++] = i == numVertices - 1 ? numVertices : i + numVertices + 1;
+                    triangles[triangleCount++] = i + numVertices * 2;
+                }
+
+                mesh.SetVertices(vertices, 0, vert_len);
+                mesh.SetNormals(normals, 0, vert_len);
+                mesh.SetUVs(0, uvs, 0, vert_len);
+                mesh.SetTriangles(triangles, 0, tri_len, 0);
             }
-
-            mesh.vertices = vertices;
-            mesh.normals = normals;
-            mesh.uv = uvs;
-            mesh.triangles = triangles;
+            finally
+            {
+                ArrayPool.ReleaseMeshArrays(vertices, normals, uvs, triangles);
+            }
         }
 
         #endregion
