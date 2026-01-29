@@ -21,6 +21,9 @@ namespace CustomPrimitiveColliders
 
         #region Fields
 
+        [SerializeField, Tooltip("Optional MeshFilter to update with mesh.")]
+        private MeshFilter _meshFilter;
+
         [SerializeField]
         private bool m_useOpenAngle = true;
         [SerializeField, Range(MIN_ANGLE, MAX_ANGLE)]
@@ -94,6 +97,7 @@ namespace CustomPrimitiveColliders
             this.GetMeshCollider(out meshCollider, out mesh);
             CreateMesh(mesh, m_radius, m_length, m_numVertices);
             meshCollider.sharedMesh = mesh;
+            if (_meshFilter) _meshFilter.sharedMesh = mesh;
         }
 
         public void ConfigureOpenAngle(float angle, float length, int numVertices = 32)
@@ -112,6 +116,7 @@ namespace CustomPrimitiveColliders
             this.GetMeshCollider(out meshCollider, out mesh);
             CreateMesh(mesh, m_radius, m_length, m_numVertices);
             meshCollider.sharedMesh = mesh;
+            if (_meshFilter) _meshFilter.sharedMesh = mesh;
         }
 
         private static void CreateMesh(Mesh mesh, float radius, float length, int numVertices)
